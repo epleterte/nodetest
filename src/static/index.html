@@ -1,17 +1,97 @@
 <html>
   <head>
     <title>Node test</title>
+
+    <link rel="stylesheet" href="/dojo/dijit/themes/claro/claro.css" type="text/css" />
+
+    <script src="/dojo/dojo/dojo.js" djConfig="gfxRenderer:'svg,vml,canvas,silverligth'"></script>
+    <script src="/jquery.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+
     <script>
+      dojo.require("dijit.layout.BorderContainer");
+      dojo.require("dijit.layout.ContentPane");
+      dojo.require("dijit.layout.AccordionContainer");
+      dojo.require("dijit.layout.TabContainer");
+      dojo.require("dojox.layout.TableContainer");
+      dojo.require('dijit.MenuBar');
+      dojo.require('dijit.MenuItem');
+      dojo.require('dijit.Menu');
+      dojo.require('dijit.PopupMenuBarItem');
+      dojo.require("dijit._base.popup");
+      dojo.require("dojo.html");
+
       var socket = io.connect(location.toString());
       var chan = socket.of("/somechannel");
-      chan.on('request', function (data) {
-        console.log(data);
-        chan.emit('answer', { my: 'data' });
+      var ui;
+
+      var addContent = function (content) {
+        ui.output.set('content', dojo.toJson(content) + "<br />" + ui.output.get('content'));
+      };
+
+      chan.on('server-request', function (data) {
+        addContent(["Server request", data]);
+        chan.emit('server-answer', { my: 'data' });
+      });
+      chan.on('client-answer', function (data) {
+        addContent(["Client answer", data]);
+      });
+
+      dojo.addOnLoad(function() {
+        ui = nodetest.Ui({}, "ui");
+        ui.startup();
+        ui.resize();
+      });
+
+      dojo.declare("nodetest.Ui", [dijit.layout.BorderContainer], {
+        design:'sidebar',
+        style:'border: 0px; height: 100%; width: 100%;',
+        gutters: false,
+        startup: function () {
+          this.inherited(arguments);
+
+          var ui = this;
+
+          ui.menu = new nodetest.TopMenu({region: 'top'});
+          ui.addChild(ui.menu);
+          ui.output = new dijit.layout.ContentPane({region: 'center'});
+          ui.addChild(ui.output);
+        }
+      });
+
+
+      dojo.declare("nodetest.TopMenu", [dijit.MenuBar], {
+        startup: function () {
+          var menu = this;
+          var item;
+          var submenu;
+
+          submenu = new nodetest.ActionMenu({dataParent: menu});
+          item = new dijit.PopupMenuBarItem({label:"Actions", popup: submenu});
+          dojo.place(submenu.domNode, item.domNode);
+          menu.addChild(item);
+
+          item = new dijit.MenuBarItem({label:"Help"});
+          menu.addChild(item);
+          item.connect(item, 'onClick', function (e) { });
+
+          this.inherited(arguments);
+        }
+      });
+
+      dojo.declare("nodetest.ActionMenu", [dijit.Menu], {
+        startup: function () {
+          var menu = this;
+          var item = new dijit.MenuBarItem({label:"Send some stuff to server"});
+          menu.addChild(item);
+          item.connect(item, 'onClick', function (e) { chan.emit('client-request', { my: 'data' }); });
+
+          return this.inherited(arguments);
+        }
       });
     </script>
   </head>
-  <body>
-   Test test
+  <body class="claro">
+    <div id="ui"></div>
   </body>
 </html>

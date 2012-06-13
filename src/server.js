@@ -10,7 +10,7 @@ var  _ = require("underscore");
 var connect = require('connect');
 var socketio = require('socket.io');
 
-log4js.setGlobalLogLevel("INFO");
+log4js.setGlobalLogLevel("info");
 
 var db;
 var app;
@@ -59,13 +59,18 @@ async.waterfall([
     iochan.on('connection', function (socket) {
       // express session is available in socket.handshake.session
 
-      socket.on("answer", function (args) {
-        console.log(["Got some data from client", args]);
+      socket.on("server-answer", function (args) {
+        console.log(["Server answer", args]);
+      });
+
+      socket.on("client-request", function (args) {
+        console.log(["Client request", args]);
+        socket.emit("client-answer", {status: "happy", args: args});
       });
 
       setInterval(function () {
-        socket.emit("request", {status: "happy"});
-      }, 2000);
+        socket.emit("server-request", {status: "happy"});
+      }, 5000);
 
     });
 
