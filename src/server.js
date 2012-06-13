@@ -75,7 +75,9 @@ async.waterfall([
     });
 
     app.get(/\/.*/, function(req, res, next) {
-        res.sendfile(path.join(path.dirname(module.filename), "static", req.path), function (err) { if (err) next(); });
+      // express session is available in req.session
+
+      res.sendfile(path.join(path.dirname(module.filename), "static", req.path), function (err) { if (err) next(); });
     });
 
     app.listen("4711", "0.0.0.0");
