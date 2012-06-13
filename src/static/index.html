@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <title>Node test</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io.connect(location.toString());
+      var chan = socket.of("/somechannel");
+      chan.on('request', function (data) {
+        console.log(data);
+        chan.emit('answer', { my: 'data' });
+      });
+    </script>
+  </head>
+  <body>
+   Test test
+  </body>
+</html>
