@@ -8,3 +8,5 @@ Run "bin/run.sh" or "bin/debugRun.sh".
 Access web application at http://localhost:4711/
 Access debugger on http://localhost:8080/
 
+
+The two most relevant files to look at are src/server.js and src/static/index.html
