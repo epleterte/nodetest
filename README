@@ -10,3 +10,8 @@ Access debugger on http://localhost:8080/
 
 
 The two most relevant files to look at are src/server.js and src/static/index.html
+
+
+Workshop notes:
+
+http://pad.freecode.no/node
